@@ -1,29 +1,25 @@
 package com.example.demo.services;
 
-import java.util.Arrays;
-
-import javax.ws.rs.core.Response;
-
+import com.example.demo.message.ResponseMessage;
+import com.exemple.demo.model.User;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
-import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.example.demo.message.ResponseMessage;
-import com.exemple.demo.model.User;
+import javax.ws.rs.core.Response;
 
 @Service
 public class KeycloakService {
 	
 	
-	 @Value("${keycloak.auth-server-url}")
-	    private String server_url;
+	 	@Value("${keycloak.auth-server-url}")
+	 	private String server_url;
 
 	    @Value("${keycloak.realm}")
 	    private String realm;
@@ -38,7 +34,9 @@ public class KeycloakService {
 	             userRepresentation.setEmail(user.getEmail());
 	             userRepresentation.setFirstName(user.getFirstName());
 	             userRepresentation.setLastName(user.getLastName());
-	             userRepresentation.setEnabled(true);
+	             userRepresentation.setEnabled(true);	
+
+	       
 	             
 
 	             Response result = usersResource.create(userRepresentation);
@@ -52,15 +50,16 @@ public class KeycloakService {
 	                 passwordCredential.setType(CredentialRepresentation.PASSWORD);
 	                 passwordCredential.setValue(user.getPassword());
 	                 usersResource.get(userId).resetPassword(passwordCredential);
-
-	                 RealmResource realmResource = getRealmResource();
+	                 usersResource.get(userId).sendVerifyEmail();
+	                 userRepresentation.isEmailVerified();
+	       /*          RealmResource realmResource = getRealmResource();
 	                 RoleRepresentation roleRepresentation = realmResource.roles().get("realm-user").toRepresentation();
-	                 realmResource.users().get(userId).roles().realmLevel().add(Arrays.asList(roleRepresentation));
-	                 message.setMessage("usuario creado con éxito");
+	                 realmResource.users().get(userId).roles().realmLevel().add(Arrays.asList(roleRepresentation));*/
+	                 message.setMessage("user created successfully");
 	             }else if(statusId == 409){
-	                 message.setMessage("ese usuario ya existe");
+	                 message.setMessage("user already exists");
 	             }else{
-	                 message.setMessage("error creando el usuario");
+	                 message.setMessage("error");
 	             }
 	         }catch (Exception e){
 	             e.printStackTrace();
